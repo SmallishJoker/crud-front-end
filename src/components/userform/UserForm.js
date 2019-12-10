@@ -1,18 +1,30 @@
 import React from 'react';
 
-import { Form, Input, Icon, Button, Tag, Tooltip, Cascader, InputNumber, message } from 'antd';
+import { Form, Input, Icon, Tag, Tooltip, Cascader, InputNumber, message } from 'antd';
 
-import styles from './AddUser.less';
-import FormItem from 'antd/lib/form/FormItem';
+import styles from './UserForm.less';
 import Position from './Position';
 
 class AddUser extends React.Component {
 
     state = {
-        tags: [],
+        tags: this.props.user.tags || [],
         inputVisible: false,
         inputValue: '',
+        user: {
+            address: ''
+        },
     };
+
+    componentDidMount() {
+        this.props.onRef(this)
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({
+            user: nextProps
+        })
+    }
 
     // 标签相关
     handleClose = removedTag => {
@@ -35,7 +47,7 @@ class AddUser extends React.Component {
         if (inputValue && tags.indexOf(inputValue) === -1) {
             tags = [...tags, inputValue];
         }
-        console.log(tags);
+        // console.log(tags);
         this.setState({
             tags,
             inputVisible: false,
@@ -47,7 +59,7 @@ class AddUser extends React.Component {
 
     // 表单数据
     handleSubmit = e => {
-        e.preventDefault();
+        // e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 fetch('http://localhost:3001/adduser', {
@@ -73,9 +85,11 @@ class AddUser extends React.Component {
                         } else {
                             message.success('Add Success');
                             this.props.form.resetFields();
+                            this.props.queryAllUsers();
                             this.setState({
                                 tags: []
                             })
+                            this.props.closeCreate();
                         }
                     }
                 )
@@ -87,14 +101,14 @@ class AddUser extends React.Component {
 
         const { getFieldDecorator, } = this.props.form;
 
-        const { tags, inputVisible, inputValue } = this.state;
+        const { tags, inputVisible, inputValue, user } = this.state;
 
         const formItemLayout = {
             labelCol: {
-                span: 9
+                span: 4
             },
             wrapperCol: {
-                span: 6
+                span: 18
             },
         };
 
@@ -106,6 +120,7 @@ class AddUser extends React.Component {
                     <Form.Item label="Name">
                         {getFieldDecorator('Name', {
                             rules: [{ required: true, message: 'Please input your Name!' }],
+                            initialValue: user.name
                         })(
                             <Input placeholder="Name" />,
                         )}
@@ -113,6 +128,7 @@ class AddUser extends React.Component {
                     <Form.Item label="Age">
                         {getFieldDecorator('Age', {
                             rules: [{ required: true, message: 'Please input your Age (must be a number)!' }],
+                            initialValue: user.age
                         })(
                             <InputNumber min={1} max={150} placeholder="Age" style={{ width: "100%" }} />,
                         )}
@@ -120,6 +136,7 @@ class AddUser extends React.Component {
                     <Form.Item label="Address">
                         {getFieldDecorator('Address', {
                             rules: [{ required: true, message: 'Please input your Address!' }],
+                            initialValue: user.address.split(' ')
                         })(
                             <Cascader options={Position} placeholder="Please select" />,
                         )}
@@ -166,11 +183,6 @@ class AddUser extends React.Component {
                             </div>,
                         )}
                     </Form.Item>
-                    <FormItem className={styles.submit}>
-                        <Button type="primary" htmlType="submit">
-                            Add
-                        </Button>
-                    </FormItem>
                 </Form>
             </div>
         )

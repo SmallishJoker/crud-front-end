@@ -2,41 +2,22 @@ import React from 'react';
 
 import { Form, Input, Icon, Button, Tag, Tooltip, Cascader, InputNumber, message } from 'antd';
 
-import styles from '../adduser/AddUser.less';
+import styles from '../../components/userform/UserForm.less';
 import FormItem from 'antd/lib/form/FormItem';
-import Position from '../adduser/Position';
+import Position from '../../components/userform/Position';
 
 class AddUser extends React.Component {
 
     state = {
-        tags: [],
+        tags: this.props.location.state.user.tags || [],
         inputVisible: false,
         inputValue: '',
-        user: {},
+        user: this.props.location.state.user || {},
         status: false
     };
 
     componentDidMount() {
-        fetch('http://localhost:3001/finduserbyid', {
-            mode: 'cors',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: this.props.location.state.id
-            })
-        }).then(
-            response => response.json().then(
-                data => {
-                    this.setState({
-                        status: true,
-                        user: data,
-                        tags: data.tags
-                    })
-                }
-            )
-        )
+        console.log(this.props.location.state.user)
     }
 
     // 标签相关
@@ -144,7 +125,7 @@ class AddUser extends React.Component {
                     <Form.Item label="Address">
                         {getFieldDecorator('Address', {
                             rules: [{ required: true, message: 'Please input your Address!' }],
-                            initialValue: status && user.address.split(' ')
+                            initialValue: user.address.split(' ')
                         })(
                             <Cascader options={Position} placeholder="Please select" />,
                         )}
