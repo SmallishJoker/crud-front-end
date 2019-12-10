@@ -5,20 +5,43 @@ import { Form, Input, Icon, Tag, Tooltip, Cascader, InputNumber, message } from 
 import styles from './UserForm.less';
 import Position from './Position';
 
-class AddUser extends React.Component {
+class EditForm extends React.Component {
 
     state = {
-        tags: this.props.user.tags || [],
-        inputVisible: false,
-        inputValue: '',
-        user: this.props.isEdit ? this.props.user : {
+        tags: [],
+        user: {
             address: ''
         },
+        inputVisible: false,
+        inputValue: '',
     };
 
     componentDidMount() {
         this.props.onRef(this)
-        console.log(this.state.user)
+        // this.queryUserById(this.props.userid)
+    }
+
+    // query user by id
+    queryUserById = (id) => {
+        fetch('http://localhost:3001/finduserbyid', {
+            mode: 'cors',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: id
+            })
+        }).then(
+            response => response.json().then(
+                data => {
+                    this.setState({
+                        tags: data.tags,
+                        user: data,
+                    })
+                }
+            )
+        )
     }
 
     // 标签相关
@@ -64,6 +87,7 @@ class AddUser extends React.Component {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
+                        _id: this.props.location.state.id,
                         name: values.Name,
                         address: values.Address.join(' '),
                         age: values.Age,
@@ -75,16 +99,11 @@ class AddUser extends React.Component {
                     }
                 ).then(
                     data => {
-                        if (data.status === 'exists') {
-                            message.warning('User already exists');
+                        if (data.status === 'OK') {
+                            message.success('Update success');
+                            this.props.closeUpdate()
                         } else {
-                            message.success('Add Success');
-                            this.props.form.resetFields();
-                            this.props.queryAllUsers();
-                            this.setState({
-                                tags: []
-                            })
-                            this.props.closeCreate();
+                            message.error('error');
                         }
                     }
                 )
@@ -96,7 +115,7 @@ class AddUser extends React.Component {
 
         const { getFieldDecorator, } = this.props.form;
 
-        const { tags, inputVisible, inputValue, user } = this.state;
+        const { tags, inputVisible, inputValue } = this.state;
 
         const formItemLayout = {
             labelCol: {
@@ -108,6 +127,9 @@ class AddUser extends React.Component {
         };
 
         const color = ['magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green', 'cyan', 'blue', 'geekblue', 'purple'];   // tags颜色
+
+        console.log(this.props.user)
+        let user = this.props.user;
 
         return (
             <div className={styles.container}>
@@ -131,7 +153,7 @@ class AddUser extends React.Component {
                     <Form.Item label="Address">
                         {getFieldDecorator('Address', {
                             rules: [{ required: true, message: 'Please input your Address!' }],
-                            initialValue: user.address.split(' ')
+                            // initialValue: user.address.split(' ')
                         })(
                             <Cascader options={Position} placeholder="Please select" />,
                         )}
@@ -185,4 +207,4 @@ class AddUser extends React.Component {
 
 }
 
-export default Form.create()(AddUser)
+export default Form.create()(EditForm)

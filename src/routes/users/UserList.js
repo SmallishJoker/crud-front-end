@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, Divider, Tag, message, Input, Form, Button, Modal } from 'antd';
 import styles from './UserList.less';
-import UserForm from '../../components/userform/UserForm';
+import CreateForm from '../../components/userform/CreateForm';
 
 const { confirm } = Modal;
 
@@ -214,7 +214,7 @@ class UserList extends React.Component {
                             this.state.isDelete && <Button type="danger" onClick={this.showDeleteConfirm.bind(this, this.state.selectedRowKeys)}>Delete</Button>
                         }
                         &nbsp;&nbsp;&nbsp;
-                        <Button type="primary" onClick={() => { this.setState({ visible: true }) }}>Create</Button>
+                        <Button type="default" onClick={() => { this.setState({ visible: true }) }}>Create</Button>
                     </div>
                 </div>
                 <Table
@@ -239,10 +239,10 @@ class UserList extends React.Component {
                         <i className="fa fa-times-circle fa-1x" aria-hidden="true"></i>
                     }
                 >
-                    <UserForm
+                    <CreateForm
                         onRef={userform => this.userform = userform}
                         queryAllUsers={this.queryAllUsers}
-                        closeCreate={() => { this.setState({ loading: false, visible: false }) }}
+                        closeCreate={(loading, visible) => { this.setState({ loading: loading, visible: visible }) }}
                         user={this.state.user}
                         isEdit={this.state.isEdit}
                     />
