@@ -13,8 +13,8 @@ class UserList extends React.Component {
             data: [],
             user: {
                 tags: [],
-                address: ''
             },
+            isEdit: false,
             selectedRowKeys: '',
             selectedRows: [],
             visible: false,
@@ -87,6 +87,7 @@ class UserList extends React.Component {
                     console.log(data)
                     this.setState({
                         user: data,
+                        isEdit: true,
                         visible: true,
                     })
                 }
@@ -243,6 +244,7 @@ class UserList extends React.Component {
                         queryAllUsers={this.queryAllUsers}
                         closeCreate={() => { this.setState({ loading: false, visible: false }) }}
                         user={this.state.user}
+                        isEdit={this.state.isEdit}
                     />
                 </Modal>
             </div>

@@ -11,19 +11,14 @@ class AddUser extends React.Component {
         tags: this.props.user.tags || [],
         inputVisible: false,
         inputValue: '',
-        user: {
+        user: this.props.isEdit ? this.props.user : {
             address: ''
         },
     };
 
     componentDidMount() {
         this.props.onRef(this)
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.setState({
-            user: nextProps
-        })
+        console.log(this.state.user)
     }
 
     // 标签相关
