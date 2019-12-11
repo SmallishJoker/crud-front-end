@@ -160,6 +160,29 @@ class UserList extends React.Component {
         })
     }
 
+    // search by conditions
+    handleSearch = (value) => {
+        fetch('http://localhost:3001/queryuser', {
+            mode: 'cors',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: value
+            })
+        }).then(
+            response => response.json()
+        ).then(
+            data => {
+                this.setState({
+                    data: data.data
+                })
+                console.log(data)
+            }
+        )
+    } 
+
     render() {
 
         const columns = [
@@ -236,7 +259,7 @@ class UserList extends React.Component {
                         <Form.Item>
                             <Search
                                 placeholder="input search Name"
-                                onSearch={value => console.log(value)}
+                                onSearch={value => this.handleSearch(value)}
                                 style={{ width: 200 }}
                                 enterButton
                             />
