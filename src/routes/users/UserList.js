@@ -1,7 +1,8 @@
 import React from 'react';
 import { Table, Divider, Tag, message, Input, Form, Button, Modal } from 'antd';
 import styles from './UserList.less';
-import CreateForm from '../../components/userform/CreateForm';
+import UserForm from '../../components/userform/UserForm';
+import UpdateForm from '../../components/userform/UpdateForm';
 
 const { confirm } = Modal;
 
@@ -11,11 +12,12 @@ class UserList extends React.Component {
         super(props);
         this.state = {
             data: [],
+            selectedRowKeys: '',
             user: {
                 tags: [],
+                address: null,
             },
-            isEdit: false,
-            selectedRowKeys: '',
+            type: null,
             selectedRows: [],
             visible: false,
             loading: false,
@@ -46,6 +48,30 @@ class UserList extends React.Component {
         )
     }
 
+    // update user by id
+    updateUserById = (id) => {
+        fetch('http://localhost:3001/finduserbyid', {
+            mode: 'cors',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: id
+            })
+        }).then(
+            response => response.json().then(
+                data => {
+                    this.setState({
+                        user: data,
+                        type: 'Update',
+                        visible: true,
+                    })
+                }
+            )
+        )
+    }
+
     // delete user by key
     deleteUserByKey = (key) => {
         fetch('http://localhost:3001/deleteuser', {
@@ -70,33 +96,9 @@ class UserList extends React.Component {
         )
     }
 
-    // update user by id
-    updateUserById = (id) => {
-        fetch('http://localhost:3001/finduserbyid', {
-            mode: 'cors',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: id
-            })
-        }).then(
-            response => response.json().then(
-                data => {
-                    console.log(data)
-                    this.setState({
-                        user: data,
-                        isEdit: true,
-                        visible: true,
-                    })
-                }
-            )
-        )
-    }
-
     // delete comfirm
     showDeleteConfirm = (record) => {
+        let that = this;
         confirm({
             title: `Are you sure delete ${
                 record instanceof Array ? 'these users' : record.name
@@ -106,25 +108,56 @@ class UserList extends React.Component {
             okType: 'danger',
             cancelText: 'No',
             onOk() {
+                let idArr = [];
                 if (record instanceof Array) {
-                    console.log(record)
+                    idArr = record;
                 } else {
-                    console.log(record._id)
+                    idArr.push(record._id)
                 }
+                that.handleDelete(idArr)
             },
             onCancel() {
                 console.log('Cancel');
             },
         });
     }
+    handleDelete = (id) => {
+        fetch('http://localhost:3001/deleteuser', {
+            mode: 'cors',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: id
+            })
+        }).then(
+            response => response.json()
+        ).then(
+            data => {
+                if (data.status === 'OK') {
+                    message.success('Delete success');
+                    this.queryAllUsers();
+                    this.setState({
+                        isDelete: false
+                    })
+                }
+            }
+        )
+    }
 
-    // adduser from AddUser
+    // adduser from AddUser 
     handleOk = () => {
+        if (this.state.type === 'Create') {
+            this.userfrom.createUser();
+        } else {
+            this.updateform.updateUser();
+        }
+    }
+    handleCancel = () => {
         this.setState({
-            loading: true
+            visible: false,
         })
-        this.userform.handleSubmit();
-        this.queryAllUsers();
     }
 
     render() {
@@ -167,7 +200,7 @@ class UserList extends React.Component {
                 dataIndex: 'action',
                 render: (text, record) => (
                     <span>
-                        <a onClick={this.updateUserById.bind(this, record._id)}>Edit</a>
+                        <a onClick={this.updateUserById.bind(this, record._id)}>Update</a>
                         <Divider type="vertical" />
                         <a onClick={this.showDeleteConfirm.bind(this, record)}>Delete</a>
                     </span>
@@ -214,7 +247,7 @@ class UserList extends React.Component {
                             this.state.isDelete && <Button type="danger" onClick={this.showDeleteConfirm.bind(this, this.state.selectedRowKeys)}>Delete</Button>
                         }
                         &nbsp;&nbsp;&nbsp;
-                        <Button type="default" onClick={() => { this.setState({ visible: true }) }}>Create</Button>
+                        <Button type="default" onClick={() => { this.setState({ visible: true, type: 'Create' }) }}>Create</Button>
                     </div>
                 </div>
                 <Table
@@ -227,25 +260,33 @@ class UserList extends React.Component {
                 <Modal
                     wrapClassName={styles.modal}
                     visible={this.state.visible}
-                    title="Create"
+                    title={`${this.state.type} User`}
                     onOk={this.handleOk}
-                    onCancel={() => this.setState({ visible: false, user: {}, })}
+                    onCancel={this.handleCancel}
                     footer={
                         <Button key="submit" type="primary" loading={this.state.loading} onClick={this.handleOk}>
-                            Submit
+                            OK
                         </Button>
                     }
                     closeIcon={
                         <i className="fa fa-times-circle fa-1x" aria-hidden="true"></i>
                     }
+                    destroyOnClose
                 >
-                    <CreateForm
-                        onRef={userform => this.userform = userform}
-                        queryAllUsers={this.queryAllUsers}
-                        closeCreate={(loading, visible) => { this.setState({ loading: loading, visible: visible }) }}
-                        user={this.state.user}
-                        isEdit={this.state.isEdit}
-                    />
+                    {
+                        this.state.type === 'Create' ?
+                            <UserForm
+                                onRef={userfrom => this.userfrom = userfrom}
+                                queryAllUsers={this.queryAllUsers}
+                                closeForm={(loading, visible) => { this.setState({ loading: loading, visible: visible }) }}
+                            /> :
+                            <UpdateForm
+                                onRef={updateform => { this.updateform = updateform }}
+                                queryAllUsers={this.queryAllUsers}
+                                closeForm={(loading, visible) => { this.setState({ loading: loading, visible: visible }) }}
+                                user={this.state.user}
+                            />
+                    }
                 </Modal>
             </div>
         )

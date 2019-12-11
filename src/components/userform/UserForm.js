@@ -15,7 +15,6 @@ class AddUser extends React.Component {
 
     componentDidMount() {
         this.props.onRef(this)
-        console.log(this.props.form)
     }
 
     // 标签相关
@@ -49,11 +48,12 @@ class AddUser extends React.Component {
 
     saveInputRef = input => (this.input = input);
 
-    // 表单数据
-    handleSubmit = e => {
+    // adduser
+    createUser = () => {
         // e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
+                this.props.closeForm(true, true);
                 fetch('http://localhost:3001/adduser', {
                     method: 'POST',
                     mode: 'cors',
@@ -72,8 +72,12 @@ class AddUser extends React.Component {
                     }
                 ).then(
                     data => {
-                        if (data.status === 'exists') {
-                            message.warning('User already exists');
+                        if (data.status === 500) {
+                            message.warning('User already exists', 1);
+                            let timer = setTimeout(() => {
+                                this.props.closeForm(false, true);
+                                clearTimeout(timer)
+                            }, 1000)
                         } else {
                             message.success('Add Success');
                             this.props.form.resetFields();
@@ -81,7 +85,7 @@ class AddUser extends React.Component {
                             this.setState({
                                 tags: []
                             })
-                            this.props.closeCreate(false, false);
+                            this.props.closeForm(false, false);
                         }
                     }
                 )
@@ -89,17 +93,8 @@ class AddUser extends React.Component {
         });
     };
 
-    // 监听表单变化
-    handChange = () => {
-        this.props.form.validateFields(err => {
-            if (!err) {
-                this.props.closeCreate(false, true)
-            }
-        })
-    }
-
     render() {
-        console.log(123)
+
         const { getFieldDecorator, } = this.props.form;
 
         const { tags, inputVisible, inputValue } = this.state;
@@ -134,14 +129,14 @@ class AddUser extends React.Component {
                     </Form.Item>
                     <Form.Item label="Address">
                         {getFieldDecorator('Address', {
-                            rules: [{ required: true, message: 'Please input your Address!' }],
+                            rules: [{ required: true, message: 'Please select your aaddress!' }],
                         })(
-                            <Cascader options={Position} placeholder="Please select" />,
+                            <Cascader options={Position} placeholder="Address" />,
                         )}
                     </Form.Item>
                     <Form.Item label="Tags">
                         {getFieldDecorator('Tags', {
-                            rules: [{ required: true, message: 'Please input some Tags!' }],
+                            rules: [{ required: true, message: 'Please input some input!' }],
                         })(
                             <div className={`${styles.tags} ${this.state.tags.length === 0 && styles.center}`}>
                                 {tags.map((tag, index) => {

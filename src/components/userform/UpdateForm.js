@@ -10,7 +10,8 @@ class EditForm extends React.Component {
     state = {
         tags: [],
         user: {
-            address: ''
+            _id: null,
+            address: '',
         },
         inputVisible: false,
         inputValue: '',
@@ -19,6 +20,21 @@ class EditForm extends React.Component {
     componentDidMount() {
         this.props.onRef(this)
         // this.queryUserById(this.props.userid)
+        this.setState({
+            user: this.props.user,
+            tags: this.props.user.tags,
+        })
+    }
+
+    // 父组件异步接受的数据在通过prop传递时子组件是获取不到的，必须使用以下生命周期函数
+    // eslint-disable-next-line react/no-deprecated
+    componentWillReceiveProps(nextProps) {
+        if (this.state.user._id !== nextProps.user._id) {
+            this.setState({
+                user: nextProps.user,
+                tags: nextProps.user.tags,
+            })
+        }
     }
 
     // query user by id
@@ -111,6 +127,57 @@ class EditForm extends React.Component {
         });
     };
 
+    // address initialVale
+    addressInitialValue = () => {
+        if (this.state.user.address === null) {
+            return null;
+        }
+        return this.state.user.address.split(' ');
+    }
+
+    // update user
+    updateUser = () => {
+        // e.preventDefault();
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                this.props.closeForm(true, false);
+                fetch('http://localhost:3001/updateuser', {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        _id: this.state.user._id,
+                        name: values.Name,
+                        address: values.Address.join(' '),
+                        age: values.Age,
+                        tags: this.state.tags
+                    })
+                }).then(
+                    response => {
+                        return response.json();
+                    }
+                ).then(
+                    data => {
+                        console.log(data)
+                        if (data.status === 'OK') {
+                            message.success('Update success');
+                            this.props.form.resetFields();
+                            this.setState({
+                                tags: []
+                            })
+
+                            // 调用父组件方法，关闭对话框
+                            this.props.queryAllUsers();
+                            this.props.closeForm(false, false);
+                        }
+                    }
+                )
+            }
+        });
+    };
+
     render() {
 
         const { getFieldDecorator, } = this.props.form;
@@ -128,7 +195,6 @@ class EditForm extends React.Component {
 
         const color = ['magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green', 'cyan', 'blue', 'geekblue', 'purple'];   // tags颜色
 
-        console.log(this.props.user)
         let user = this.props.user;
 
         return (
@@ -153,7 +219,7 @@ class EditForm extends React.Component {
                     <Form.Item label="Address">
                         {getFieldDecorator('Address', {
                             rules: [{ required: true, message: 'Please input your Address!' }],
-                            // initialValue: user.address.split(' ')
+                            initialValue: this.addressInitialValue()
                         })(
                             <Cascader options={Position} placeholder="Please select" />,
                         )}
