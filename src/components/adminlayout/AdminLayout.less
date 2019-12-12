@@ -1,0 +1,73 @@
+.layout {
+    height: 100%;
+  
+    .trigger {
+      font-size: 18px;
+      line-height: 64px;
+      padding: 0 24px;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+  
+    .trigger:hover {
+      color: #1890ff;
+    }
+  
+    .logo {
+      height: 32px;
+      background: rgba(0, 0, 0, 0.2);
+      margin: 16px;
+      line-height: 32px;
+      text-align: center;
+      font-size: 18px;
+    }
+  
+    .menu {
+      margin-top: 20px;
+      border: none;
+  
+      & a {
+        display: inline-block;
+      }
+    }
+  
+    .icon {
+      display: inline-block;
+      margin-right: 10px;
+    }
+  
+    .header {
+      background: #fff;
+      padding: 0;
+      display: flex;
+  
+      .user {
+        flex: 1;
+        text-align: right;
+  
+        .badge {
+          line-height: 0;
+          position: relative;
+          top: 5px;
+          right: 10px;
+          cursor: pointer;
+          padding-bottom: 18px;
+  
+          &:nth-child(1):hover {
+            color: #3498db;
+          }
+        }
+  
+        .avatar {
+          display: inline-block;
+          width: 150px;
+          padding: 0 2em;
+          cursor: pointer;
+  
+          &:hover {
+            background-color: rgba(223, 249, 251, 0.5);
+          }
+        }
+      }
+    }
+  }

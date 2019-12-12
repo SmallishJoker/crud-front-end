@@ -1,13 +1,13 @@
 import React from 'react';
 import { Layout, Menu, Breadcrumb, Icon, Dropdown, Badge, Avatar } from 'antd';
-import style from './MainLayout.less';
+import style from './AdminLayout.less';
 import PropTypes from 'prop-types';     // 手动路由，不使用Link标签路由
 // import { Link } from 'dva/router';
 
 const { SubMenu } = Menu;
 const { Header, Content, Sider } = Layout;
 
-export default class MainLayout extends React.Component {
+export default class AdminLayout extends React.Component {
 
     constructor(props, context) {
         super(props);
@@ -24,10 +24,10 @@ export default class MainLayout extends React.Component {
         this.changeCurrent();
     }
 
-    // 侧边菜单
+    // 侧边菜单当前位置
     changeCurrent = () => {
         let current = this.router.history.location.pathname.substr(1)
-        if (current === '') {
+        if (current === 'admin') {
             this.setState({
                 current: 'dashboard'
             })
@@ -51,16 +51,10 @@ export default class MainLayout extends React.Component {
             current: e.key,
         });
         if (e.key === 'dashboard') {
-            return this.router.history.push({ pathname: '/' })
+            return this.router.history.push({ pathname: '/admin/dashboard' })
         }
-        this.router.history.push({ pathname: e.key })     // 手动路由，不使用Link标签路由
+        this.router.history.push({ pathname: `/admin/${e.key}` })     // 手动路由，不使用Link标签路由
     }
-
-    // // 获取当前页面路径
-    // getPath = () => {
-    //     let path = window.location.pathname.substr(1);
-    //     return path;
-    // }
 
     render() {
 
@@ -94,6 +88,8 @@ export default class MainLayout extends React.Component {
                 </Menu.Item>
             </Menu>
         )
+
+        console.log(this.props)
 
         return (
             <Layout className={style.layout} >
@@ -166,28 +162,7 @@ export default class MainLayout extends React.Component {
                                     <span>
                                         <Icon type="dashboard" />&nbsp;Dashboard
                                     </span>
-                                    {/* {
-                                        this.getPath() === 'dashboard' ?
-                                            <span><Icon type="dashboard" />&nbsp;Dashboard</span> :
-                                            <Link to="/dashboard">
-                                                <span onClick={this.handleRouter}>
-                                                    <Icon type="dashboard" />&nbsp;Dashboard
-                                                </span>
-                                            </Link>
-                                    } */}
                                 </Breadcrumb.Item>
-                                {/* {
-
-                                    this.getPath() !== 'dashboard' ?
-                                        <Breadcrumb.Item>
-                                            <span>
-                                                <Icon type="user" />&nbsp;
-                                            {
-                                                    this.getPath().charAt(0).toUpperCase() + this.getPath().substr(1)
-                                                }
-                                            </span>
-                                        </Breadcrumb.Item> : null
-                                } */}
                             </Breadcrumb>
                             <Content
                                 style={{
@@ -209,6 +184,6 @@ export default class MainLayout extends React.Component {
 }
 
 // 手动路由，不使用Link标签路由
-MainLayout.contextTypes = {
+AdminLayout.contextTypes = {
     router: PropTypes.object.isRequired
 };

@@ -30,6 +30,13 @@ class UserList extends React.Component {
         this.queryAllUsers();
     }
 
+
+    componentWillUnmount() {
+        this.setState = (state, callback) => {
+            return;
+        };
+    }
+
     // query all users
     queryAllUsers = () => {
         fetch('http://localhost:3001/getuser', {
@@ -43,7 +50,7 @@ class UserList extends React.Component {
                 this.setState({
                     data: data.data
                 })
-                console.log(data)
+                // console.log(data)
             }
         )
     }
@@ -181,7 +188,27 @@ class UserList extends React.Component {
                 console.log(data)
             }
         )
-    } 
+    }
+
+    // go user detail
+    goDetail = (name) => {
+        fetch('http://localhost:3001/queryuser', {
+            mode: 'cors',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name
+            })
+        }).then(
+            response => response.json()
+        ).then(
+            data => {
+                this.props.history.push({ pathname: `${this.props.match.path}/userdetail`, state: { user: data.data[0] } })
+            }
+        )
+    }
 
     render() {
 
@@ -189,7 +216,7 @@ class UserList extends React.Component {
             {
                 title: 'Name',
                 dataIndex: 'name',
-                render: text => <a>{text}</a>,
+                render: text => <a onClick={this.goDetail.bind(this, text)}>{text}</a>,
             },
             {
                 title: 'Age',
