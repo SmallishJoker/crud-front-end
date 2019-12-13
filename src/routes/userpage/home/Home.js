@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, Avatar, Icon, Tooltip } from 'antd';
+import { List, Avatar, Icon, Tooltip, BackTop } from 'antd';
 import moment from 'moment';
 import style from './Home.less';
 
@@ -82,6 +82,7 @@ export default class Home extends React.Component {
                         )}
                     />
                 </div>
+                <BackTop />
             </div>
         )
     }
