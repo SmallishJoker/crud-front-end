@@ -26,7 +26,7 @@ export default class AdminLayout extends React.Component {
 
     // 侧边菜单当前位置
     changeCurrent = () => {
-        let current = this.router.history.location.pathname.substr(1)
+        let current = this.router.history.location.pathname.substr(1);
         if (current === 'admin') {
             this.setState({
                 current: 'dashboard'
@@ -51,9 +51,10 @@ export default class AdminLayout extends React.Component {
             current: e.key,
         });
         if (e.key === 'dashboard') {
-            return this.router.history.push({ pathname: '/admin/dashboard' })
+            return this.router.history.push({ pathname: `/admin/dashboard` })
         }
-        this.router.history.push({ pathname: `/admin/${e.key}` })     // 手动路由，不使用Link标签路由
+        console.log(this.router.history);
+        this.router.history.push({ pathname: `/admin/${e.key}` });     // 手动路由，不使用Link标签路由
     }
 
     render() {

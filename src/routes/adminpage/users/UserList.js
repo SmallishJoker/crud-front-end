@@ -1,8 +1,8 @@
 import React from 'react';
 import { Table, Divider, Tag, message, Input, Form, Button, Modal } from 'antd';
 import styles from './UserList.less';
-import UserForm from '../../components/userform/UserForm';
-import UpdateForm from '../../components/userform/UpdateForm';
+import UserForm from '../../../components/userform/UserForm';
+import UpdateForm from '../../../components/userform/UpdateForm';
 
 const { confirm } = Modal;
 
@@ -205,12 +205,15 @@ class UserList extends React.Component {
             response => response.json()
         ).then(
             data => {
-                this.props.history.push({ pathname: `${this.props.match.path}/userdetail`, state: { user: data.data[0] } })
+                console.log(this.props.match.url)
+                this.props.history.push({ pathname: `${this.props.match.url}/detail/?${name}`, state: { user: data.data[0] } })
             }
         )
     }
 
     render() {
+
+        console.log(this.props)
 
         const columns = [
             {
@@ -343,5 +346,5 @@ class UserList extends React.Component {
     }
 
 }
-
-export default Form.create()(UserList)
+UserList = Form.create()(UserList);
+export default (props)=><UserList {...props} key={props.location.pathname} />;
