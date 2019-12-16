@@ -225,9 +225,7 @@ class EditForm extends React.Component {
                         )}
                     </Form.Item>
                     <Form.Item label="Tags">
-                        {getFieldDecorator('Tags', {
-                            rules: [{ required: true, message: 'Please input some Tags!' }],
-                        })(
+                        {getFieldDecorator('Tags')(
                             <div className={`${styles.tags} ${this.state.tags.length === 0 && styles.center}`}>
                                 {tags.map((tag, index) => {
                                     const isLongTag = tag.length > 20;

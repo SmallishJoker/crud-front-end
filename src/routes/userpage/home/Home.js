@@ -1,38 +1,49 @@
 import React from 'react';
-import { List, Avatar, Icon, Tooltip, BackTop } from 'antd';
+import { List, Avatar, Icon, Tooltip } from 'antd';
 import moment from 'moment';
 import style from './Home.less';
 
-const listData = [];
-for (let i = 0; i < 50; i++) {
-    listData.push({
-        href: 'http://ant.design',
-        title: `author ${i}`,
-        avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-        description:
-            'Ant Design, a design language for background applications, is refined by Ant UED Team.',
-        content:
-            'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
-        time: '17天前'
-    });
-}
-
-const IconText = ({ type, text }) => (
-    <span>
-        <Icon type={type} style={{ marginRight: 8 }} />
-        {text}
-    </span>
-);
-
 export default class Home extends React.Component {
 
+    state = {
+        listData: []
+    }
+
+    componentDidMount() {
+        this.queryTopics();
+    }
+
+    queryTopics = () => {
+        fetch('http://localhost:3001/querytopics', {
+            mode: 'cors',
+            method: 'GET',
+        }).then(
+            response => response.json()
+        ).then(
+            data => {
+                console.log(data)
+                this.setState({
+                    listData: data.data
+                })
+            }
+        )
+    }
+
     render() {
+
+
+        const IconText = ({ type, text }) => (
+            <span>
+                <Icon type={type} style={{ marginRight: 8 }} />
+                {text}
+            </span>
+        );
 
         return (
             <div className={style.container}>
                 <ul className={style.nav}>
                     <li><span className={`${style.tags} ${style.tags_active}`}><a>全部</a></span></li>
-                    <li><span className={style.tags}><a>热门</a></span></li>
+                    <li><span className={style.tags}><a href="/admin">热门</a></span></li>
                     <li><span className={style.tags}><a>最新</a></span></li>
                     <li><span className={style.tags}><a>资源</a></span></li>
                     <li><span className={style.tags}><a>回答</a></span></li>
@@ -49,25 +60,22 @@ export default class Home extends React.Component {
                             pageSize: 10,
                             className: style.paginations
                         }}
-                        dataSource={listData}
+                        dataSource={this.state.listData}
                         renderItem={item => (
                             <List.Item
-                                key={item.title}
+                                key={item._id}
                                 actions={[
-                                    <IconText type="star-o" text="156" key="list-vertical-star-o" />,
-                                    <IconText type="like-o" text="156" key="list-vertical-like-o" />,
-                                    <IconText type="message" text="2" key="list-vertical-message" />,
+                                    <IconText type="eye" text={item.visit} key="list-vertical-star-o" />,
+                                    <IconText type="like-o" text={item.like} key="list-vertical-like-o" />,
+                                    <IconText type="message" text={item.messageCount} key="list-vertical-message" />,
                                 ]}
                             >
                                 <List.Item.Meta
-                                    avatar={<Avatar src={item.avatar} />}
-                                    title={<a href={item.href}>{item.title}</a>}
+                                    avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
+                                    title={<a>{item.author}</a>}
                                     description={
-                                        // <Tooltip title={moment().format('YYYY-MM-DD HH:mm:ss')}>
-                                        //     <span>{moment().fromNow()}</span>
-                                        // </Tooltip>
-                                        <Tooltip title={item.time}>
-                                            <span>{item.time}</span>
+                                        <Tooltip title={item.date}>
+                                            <span>{moment(item.date).fromNow()}</span>
                                         </Tooltip>
                                     }
                                 />
@@ -76,13 +84,12 @@ export default class Home extends React.Component {
                                     className={style.article_link}
                                     style={{ "WebkitBoxOrient": "vertical" }}
                                 >
-                                    {item.content}
+                                    {item.article}
                                 </a>
                             </List.Item>
                         )}
                     />
                 </div>
-                <BackTop />
             </div>
         )
     }
